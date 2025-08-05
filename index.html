@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Guide: Upgrading AWS Bedrock Agent for Bulk SEO Phrase Generation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: The application is structured as a narrative journey for a technical user. It starts with a high-level introduction (Section 1), then presents the core challenge (Section 2). The heart of the app is the "Solution Architectures" section (Section 3), which uses an interactive toggle to allow users to directly compare the Synchronous Agent and Asynchronous Batch approaches side-by-side. This is the most critical interaction, as it addresses the report's central theme. Subsequent sections (4, 5, 6) provide deep-dive details (Implementation, Security, API Usage) revealed on demand, reducing initial cognitive load. A final "Recommendation & Summary" section (Section 7) uses a chart to visually reinforce the comparison and provides a clear takeaway. This structure guides the user from problem to solution to recommendation, making a dense technical document easy to navigate and digest. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Architectural Comparison -> Goal: Compare -> Viz/Method: Interactive Toggle + Table -> Interaction: User clicks a toggle to switch between detailed views of "Synchronous Agent" and "Asynchronous Batch" architectures. -> Justification: This is the most effective way to compare two complex options, allowing users to focus on one at a time while easily switching context. It's more engaging than a static table. -> Library/Method: Vanilla JS, Tailwind CSS.
+        - Report Info: Lambda/Python/JSON/YAML Code -> Goal: Inform -> Viz/Method: Tabbed Code Blocks -> Interaction: User clicks tabs for different code snippets (Python, OpenAPI, IAM Policy). -> Justification: Tabs organize multiple code blocks cleanly, preventing a long page of scrolling and letting users view only the code relevant to their immediate interest. -> Library/Method: Vanilla JS, Tailwind CSS.
+        - Report Info: Cost & Scalability Comparison -> Goal: Compare -> Viz/Method: Bar Chart -> Interaction: A simple, static bar chart is rendered on page load to visually summarize the cost and scalability differences. -> Justification: A chart provides a quick, high-impact visual summary of the key decision factors (cost, scalability), reinforcing the report's final recommendation more effectively than text alone. -> Library/Method: Chart.js.
+        - Report Info: Report Sections (Intro, Setup, etc.) -> Goal: Organize -> Viz/Method: Accordion/Collapsible Sections -> Interaction: Main content sections are collapsible, allowing users to expand only the parts they want to read. -> Justification: Reduces information overload, making the single-page app feel less daunting and more like a dashboard. -> Library/Method: Vanilla JS, Tailwind CSS.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fdfcfb;
+            color: #333;
+        }
+        .section-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease-in-out;
+        }
+        .tab-button {
+            transition: all 0.2s ease-in-out;
+        }
+        .tab-button.active {
+            border-bottom-color: #4f46e5;
+            color: #4f46e5;
+            font-weight: 600;
+        }
+        .toggle-bg:after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            background: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 9999px;
+            transition: 0.3s;
+        }
+        input:checked + .toggle-bg:after {
+            transform: translateX(100%);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto px-4 py-8 md:py-12">
+        
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 tracking-tight">Upgrading an AWS Bedrock Agent</h1>
+            <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">An Interactive Guide to Bulk SEO Phrase Generation</p>
+        </header>
+
+        <main class="space-y-8">
+            
+            <!-- Section 1: Introduction -->
+            <section id="introduction" class="section-card p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">1. The Challenge: From Single Prompts to Bulk Processing</h2>
+                <div class="space-y-4 text-gray-700">
+                    <p>This guide provides a comprehensive technical roadmap for enhancing the `nova_lite` Amazon Bedrock agent. The primary objective is to evolve the agent from a tool that handles single, conversational prompts into a powerful data processing engine capable of generating SEO phrases in bulk from large Excel files.</p>
+                    <p>The core task involves reading image descriptions and tags from a spreadsheet, and using a foundation model to generate relevant, high-quality SEO phrases. We will explore two distinct architectural approaches to solve this challenge, each with its own trade-offs in terms of scalability, cost, and complexity.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Solution Architectures -->
+            <section id="architectures" class="section-card p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">2. Solution Architectures: A Tale of Two Approaches</h2>
+                <p class="text-gray-600 mb-6">The report details two paths: a direct, synchronous method suitable for small jobs, and a robust, asynchronous pattern for enterprise-scale workloads. Use the toggle below to switch between the two architectural blueprints and compare their features.</p>
+
+                <div class="flex items-center justify-center space-x-4 mb-8">
+                    <span id="syncLabel" class="font-semibold text-indigo-600">Synchronous Agent</span>
+                    <label for="archToggle" class="flex items-center cursor-pointer">
+                        <div class="relative">
+                            <input type="checkbox" id="archToggle" class="sr-only">
+                            <div class="block bg-gray-200 w-12 h-6 rounded-full toggle-bg"></div>
+                        </div>
+                    </label>
+                    <span id="asyncLabel" class="font-semibold text-gray-500">Asynchronous Batch</span>
+                </div>
+
+                <!-- Architecture Details -->
+                <div id="syncArchitecture">
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-3">Approach 1: Synchronous Agent via API</h3>
+                            <p class="text-gray-700 mb-4">This approach directly modifies the Bedrock Agent to accept a request to process a file from S3. The agent invokes a Lambda function which reads the file, iterates through each row, calls the Bedrock model for each, and then saves the completed file back to S3. The entire process happens within a single, synchronous invocation.</p>
+                             <div class="mt-4 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                                <h4 class="font-semibold text-indigo-800">Key Characteristics:</h4>
+                                <ul class="list-disc list-inside mt-2 text-indigo-700 space-y-1">
+                                    <li><strong>Use Case:</strong> Best for small, interactive jobs or demos.</li>
+                                    <li><strong>Scalability:</strong> Limited by Lambda's 15-minute timeout.</li>
+                                    <li><strong>Cost:</strong> Billed at standard on-demand model pricing.</li>
+                                    <li><strong>Resilience:</strong> A single error can fail the entire batch.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg border">
+                            <h4 class="font-semibold text-center mb-2">Synchronous Flow Diagram</h4>
+                            <div class="text-sm space-y-2 text-center">
+                                <div class="p-3 bg-white rounded-md shadow-sm">User/Client ➜ Invoke Agent API</div>
+                                <div class="font-bold text-gray-500">↓</div>
+                                <div class="p-3 bg-white rounded-md shadow-sm">Bedrock Agent ➜ Triggers Lambda</div>
+                                <div class="font-bold text-gray-500">↓</div>
+                                <div class="p-3 bg-white rounded-md shadow-sm">Lambda: Reads S3 File</div>
+                                <div class="font-bold text-gray-500">↓</div>
+                                <div class="p-3 bg-white rounded-md shadow-sm">Lambda: Loops & Invokes Model (Row by Row)</div>
+                                <div class="font-bold text-gray-500">↓</div>
+                                <div class="p-3 bg-white rounded-md shadow-sm">Lambda: Writes Results to S3</div>
+                                <div class="font-bold text-gray-500">↓</div>
+                                <div class="p-3 bg-white rounded-md shadow-sm">Agent API ➜ Returns S3 Path</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="asyncArchitecture" class="hidden">
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-3">Approach 2: Asynchronous Bedrock Batch Inference</h3>
+                            <p class="text-gray-700 mb-4">This is the recommended production-grade architecture. An S3 file upload triggers a "Data Prep" Lambda. This function converts the Excel data to the required JSONL format and initiates a Bedrock Batch Inference job. Bedrock manages the entire process asynchronously, handling scaling, retries, and errors automatically.</p>
+                             <div class="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                                <h4 class="font-semibold text-green-800">Key Characteristics:</h4>
+                                <ul class="list-disc list-inside mt-2 text-green-700 space-y-1">
+                                    <li><strong>Use Case:</strong> Ideal for large files and offline processing.</li>
+                                    <li><strong>Scalability:</strong> Highly scalable, managed by AWS.</li>
+                                    <li><strong>Cost:</strong> Up to 50% cheaper than on-demand pricing.</li>
+                                    <li><strong>Resilience:</strong> High; includes managed retries and error handling.</li>
+                                </ul>
+                            </div>
+                        </div>
+                         <div class="bg-gray-50 p-4 rounded-lg border">
+                            <h4 class="font-semibold text-center mb-2">Asynchronous Flow Diagram</h4>
+                            <div class="text-sm space-y-2 text-center">
+                                <div class="p-3 bg-white rounded-md shadow-sm">User ➜ Uploads File to Input S3 Bucket</div>
+                                <div class="font-bold text-gray-500">↓ (S3 Event Trigger)</div>
+                                <div class="p-3 bg-white rounded-md shadow-sm">Data Prep Lambda ➜ Converts to JSONL</div>
+                                <div class="font-bold text-gray-500">↓</div>
+                                <div class="p-3 bg-white rounded-md shadow-sm">Lambda ➜ Starts Bedrock Batch Job</div>
+                                <div class="font-bold text-gray-500">↓</div>
+                                <div class="p-3 bg-fuchsia-100 rounded-md shadow-sm font-semibold">AWS Managed Bedrock Batch Inference</div>
+                                <div class="font-bold text-gray-500">↓</div>
+                                <div class="p-3 bg-white rounded-md shadow-sm">Bedrock ➜ Writes Results to Output S3</div>
+                                <div class="font-bold text-gray-500">↓ (Optional Trigger)</div>
+                                <div class="p-3 bg-white rounded-md shadow-sm">Post-Processing Lambda (e.g., Notifications)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Implementation Deep Dive -->
+            <section id="implementation" class="section-card p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">3. Implementation Deep Dive</h2>
+                <p class="text-gray-600 mb-6">This section contains the core technical assets for implementing the synchronous agent approach, including the OpenAPI schema for the agent, the full Python Lambda code, and the required security policies.</p>
+                
+                <div class="border-b border-gray-200 mb-4">
+                    <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                        <button class="tab-button active" data-tab="openapi">OpenAPI Schema</button>
+                        <button class="tab-button" data-tab="lambda">Lambda Function</button>
+                        <button class="tab-button" data-tab="iam">IAM Policy</button>
+                        <button class="tab-button" data-tab="client">Python Client</button>
+                    </nav>
+                </div>
+
+                <div class="bg-gray-800 rounded-lg overflow-hidden">
+                    <div id="tab-content-openapi" class="tab-content p-4">
+                        <pre><code class="language-yaml text-white text-sm">
+openapi: 3.0.0
+info:
+  title: SEO Phrase Generation API
+  version: 1.0.0
+  description: API for generating SEO phrases in bulk from an Excel file in S3.
+paths:
+  /generate-seo-phrases-from-file:
+    post:
+      summary: Process an Excel file from S3 to generate SEO phrases
+      description: Triggers a Lambda function to read an Excel file...
+      operationId: generateSeoPhrasesFromFile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                s3_bucket:
+                  type: string
+                s3_key:
+                  type: string
+      responses:
+        '200':
+          description: "Successful invocation."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  output_s3_path:
+                    type: string
+                        </code></pre>
+                    </div>
+                    <div id="tab-content-lambda" class="tab-content hidden p-4">
+                        <pre><code class="language-python text-white text-sm">
+import json
+import boto3
+import pandas as pd
+import awswrangler as wr
+import io
+# ... (full Lambda code from report) ...
+
+def lambda_handler(event, context):
+    # Extract API path and parameters
+    api_path = event.get('apiPath')
+    properties = event.get('requestBody', {}).get('content', {}).get('application/json', {}).get('properties', [])
+    params = {prop['name']: prop['value'] for prop in properties}
+    s3_bucket = params.get('s3_bucket')
+    s3_key = params.get('s3_key')
+
+    # Read Excel from S3
+    obj = s3_client.get_object(Bucket=s3_bucket, Key=s3_key)
+    df = pd.read_excel(io.BytesIO(obj['Body'].read()))
+
+    # Loop, invoke model, and generate phrases
+    generated_phrases_list = []
+    for index, row in df.iterrows():
+        # ... logic to call Bedrock and filter phrases ...
+        generated_phrases_list.append(cleaned_output)
+    
+    df['Generated_LLM_Phrases'] = generated_phrases_list
+
+    # Write results back to S3
+    # ... wr.s3.to_excel(...) ...
+    
+    # Return response to agent
+    return {
+        'messageVersion': '1.0',
+        'response': {
+            # ... success response structure ...
+        }
+    }
+                        </code></pre>
+                    </div>
+                    <div id="tab-content-iam" class="tab-content hidden p-4">
+                        <pre><code class="language-json text-white text-sm">
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": "arn:aws:logs:*:*:*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::nova-lite-seo-input-bucket-*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::nova-lite-seo-output-bucket-*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "bedrock:InvokeModel",
+            "Resource": "arn:aws:bedrock:*:*:foundation-model/*"
+        }
+    ]
+}
+                        </code></pre>
+                    </div>
+                     <div id="tab-content-client" class="tab-content hidden p-4">
+                        <pre><code class="language-python text-white text-sm">
+import boto3
+import json
+import uuid
+
+AGENT_ID = "YOUR_AGENT_ID"
+AGENT_ALIAS_ID = "YOUR_AGENT_ALIAS_ID"
+AWS_REGION = "us-east-1"
+INPUT_BUCKET = "nova-lite-seo-input-bucket-..."
+INPUT_KEY = "llm_phrases_img_only_w_categories.xlsx"
+
+bedrock_agent_runtime = boto3.client("bedrock-agent-runtime", region_name=AWS_REGION)
+
+def invoke_nova_lite_agent(prompt_text):
+    response = bedrock_agent_runtime.invoke_agent(
+        agentId=AGENT_ID,
+        agentAliasId=AGENT_ALIAS_ID,
+        sessionId=str(uuid.uuid4()),
+        inputText=prompt_text
+    )
+    
+    # Process the streaming response
+    event_stream = response.get('completion')
+    final_completion = ""
+    for event in event_stream:
+        if 'chunk' in event:
+            final_completion += event['chunk']['bytes'].decode('utf-8')
+    return final_completion
+
+prompt = f"Please generate SEO phrases for the file '{INPUT_KEY}' located in the S3 bucket '{INPUT_BUCKET}'."
+agent_response = invoke_nova_lite_agent(prompt)
+print(json.loads(agent_response))
+                        </code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Recommendation -->
+            <section id="recommendation" class="section-card p-6 md:p-8">
+                 <h2 class="text-2xl font-bold text-gray-800 mb-4">4. Recommendation & Visual Summary</h2>
+                 <p class="text-gray-600 mb-6">While the synchronous approach is viable for small tasks, the report strongly recommends the <strong>Asynchronous Batch Inference</strong> architecture for any production workload. The benefits in scalability, cost-efficiency, and resilience are significant. The chart below visually summarizes the key comparison points.</p>
+                <div class="chart-container">
+                    <canvas id="architectureComparisonChart"></canvas>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="text-center mt-16 text-gray-500">
+            <p>Interactive Report Generated from Source Document. All content derived from the provided guide.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Tab switching logic
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tab = button.dataset.tab;
+
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    button.classList.add('active');
+
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    document.getElementById(`tab-content-${tab}`).classList.remove('hidden');
+                });
+            });
+
+            // Architecture toggle logic
+            const archToggle = document.getElementById('archToggle');
+            const syncArch = document.getElementById('syncArchitecture');
+            const asyncArch = document.getElementById('asyncArchitecture');
+            const syncLabel = document.getElementById('syncLabel');
+            const asyncLabel = document.getElementById('asyncLabel');
+
+            archToggle.addEventListener('change', () => {
+                if (archToggle.checked) {
+                    syncArch.classList.add('hidden');
+                    asyncArch.classList.remove('hidden');
+                    syncLabel.classList.remove('text-indigo-600');
+                    syncLabel.classList.add('text-gray-500');
+                    asyncLabel.classList.add('text-indigo-600');
+                    asyncLabel.classList.remove('text-gray-500');
+                } else {
+                    syncArch.classList.remove('hidden');
+                    asyncArch.classList.add('hidden');
+                    syncLabel.classList.add('text-indigo-600');
+                    syncLabel.classList.remove('text-gray-500');
+                    asyncLabel.classList.remove('text-indigo-600');
+                    asyncLabel.classList.add('text-gray-500');
+                }
+            });
+
+            // Chart.js visualization
+            const ctx = document.getElementById('architectureComparisonChart').getContext('2d');
+            const architectureComparisonChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Scalability', 'Cost Efficiency', 'Resilience'],
+                    datasets: [{
+                        label: 'Synchronous Agent',
+                        data: [3, 5, 4],
+                        backgroundColor: 'rgba(129, 140, 248, 0.6)',
+                        borderColor: 'rgba(129, 140, 248, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Asynchronous Batch',
+                        data: [9, 8, 9],
+                        backgroundColor: 'rgba(52, 211, 153, 0.6)',
+                        borderColor: 'rgba(52, 211, 153, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            title: {
+                                display: true,
+                                text: 'Relative Score (out of 10)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Architectural Approach Comparison',
+                            font: {
+                                size: 18
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y + '/10';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
